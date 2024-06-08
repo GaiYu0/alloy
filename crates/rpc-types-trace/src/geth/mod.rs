@@ -42,14 +42,12 @@ pub struct BlockTraceResult {
 ///
 /// <https://github.com/ethereum/go-ethereum/blob/a9ef135e2dd53682d106c6a2aede9187026cc1de/eth/tracers/logger/logger.go#L406-L411>
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct DefaultFrame {
     /// Whether the transaction failed
     pub failed: bool,
     /// How much gas was used.
     pub gas: u64,
     /// Output of the transaction
-    #[serde(serialize_with = "alloy_serde::serialize_hex_string_no_prefix")]
     pub return_value: Bytes,
     /// Recorded traces of the transaction
     pub struct_logs: Vec<StructLog>,
@@ -67,35 +65,23 @@ pub struct StructLog {
     /// remaining gas
     pub gas: u64,
     /// cost for executing op
-    #[serde(rename = "gasCost")]
     pub gas_cost: u64,
     /// Current call depth
     pub depth: u64,
     /// Error message if any
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
     /// EVM stack
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub stack: Option<Vec<U256>>,
     /// Last call's return data. Enabled via enableReturnData
-    #[serde(default, rename = "returnData", skip_serializing_if = "Option::is_none")]
     pub return_data: Option<Bytes>,
     /// ref <https://github.com/ethereum/go-ethereum/blob/366d2169fbc0e0f803b68c042b77b6b480836dbc/eth/tracers/logger/logger.go#L450-L452>
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub memory: Option<Vec<String>>,
     /// Size of memory.
-    #[serde(default, rename = "memSize", skip_serializing_if = "Option::is_none")]
     pub memory_size: Option<u64>,
     /// Storage slots of current contract read from and written to. Only emitted for SLOAD and
     /// SSTORE. Disabled via disableStorage
-    #[serde(
-        default,
-        skip_serializing_if = "Option::is_none",
-        serialize_with = "serialize_string_storage_map_opt"
-    )]
     pub storage: Option<BTreeMap<B256, B256>>,
     /// Refund counter
-    #[serde(default, rename = "refund", skip_serializing_if = "Option::is_none")]
     pub refund_counter: Option<u64>,
 }
 
@@ -105,7 +91,6 @@ pub struct StructLog {
 /// matches another variant, for example a js tracer that returns `{}` would be deserialized as
 /// [GethTrace::NoopTracer]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum GethTrace {
     /// The response for the default struct log tracer
     Default(DefaultFrame),
@@ -174,12 +159,10 @@ pub enum GethDebugBuiltInTracerType {
     /// of a transaction, along with the size of the supplied call data. The result is a
     /// [FourByteFrame] where the keys are SELECTOR-CALLDATASIZE and the values are number of
     /// occurrences of this key.
-    #[serde(rename = "4byteTracer")]
     FourByteTracer,
     /// The callTracer tracks all the call frames executed during a transaction, including depth 0.
     /// The result will be a nested list of call frames, resembling how EVM works. They form a tree
     /// with the top-level call at root and sub-calls as children of the higher levels.
-    #[serde(rename = "callTracer")]
     CallTracer,
     /// The prestate tracer has two modes: prestate and diff. The prestate mode returns the
     /// accounts necessary to execute a given transaction. diff mode returns the differences
@@ -189,13 +172,10 @@ pub enum GethDebugBuiltInTracerType {
     /// of a stateless witness, the difference being this tracer doesn't return any cryptographic
     /// proof, rather only the trie leaves. The result is an object. The keys are addresses of
     /// accounts.
-    #[serde(rename = "prestateTracer")]
     PreStateTracer,
     /// This tracer is noop. It returns an empty object and is only meant for testing the setup.
-    #[serde(rename = "noopTracer")]
     NoopTracer,
     /// The mux tracer is a tracer that can run multiple tracers at once.
-    #[serde(rename = "muxTracer")]
     MuxTracer,
 }
 
@@ -203,7 +183,6 @@ pub enum GethDebugBuiltInTracerType {
 ///
 /// See <https://geth.ethereum.org/docs/developers/evm-tracing/built-in-tracers> and <https://geth.ethereum.org/docs/developers/evm-tracing/custom-tracer>
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum GethDebugTracerType {
     /// built-in tracer
     BuiltInTracer(GethDebugBuiltInTracerType),
@@ -222,7 +201,6 @@ impl From<GethDebugBuiltInTracerType> for GethDebugTracerType {
 /// This is a simple wrapper around serde_json::Value.
 /// with helpers for deserializing tracer configs.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(transparent)]
 pub struct GethDebugTracerConfig(pub serde_json::Value);
 
 // === impl GethDebugTracerConfig ===
@@ -296,15 +274,12 @@ impl From<MuxConfig> for GethDebugTracerConfig {
 ///
 /// See <https://geth.ethereum.org/docs/rpc/ns-debug#debug_tracetransaction>
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct GethDebugTracingOptions {
     /// The common tracing options
-    #[serde(default, flatten)]
     pub config: GethDefaultTracingOptions,
     /// The custom tracer to use.
     ///
     /// If `None` then the default structlog tracer is used.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tracer: Option<GethDebugTracerType>,
     /// Config specific to given `tracer`.
     ///
@@ -314,11 +289,9 @@ pub struct GethDebugTracingOptions {
     /// See <https://github.com/ethereum/go-ethereum/issues/26513>
     ///
     /// This could be [CallConfig] or [PreStateConfig] depending on the tracer.
-    #[serde(default, skip_serializing_if = "GethDebugTracerConfig::is_null")]
     pub tracer_config: GethDebugTracerConfig,
     /// A string of decimal integers that overrides the JavaScript-based tracing calls default
     /// timeout of 5 seconds.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub timeout: Option<String>,
 }
 
@@ -363,10 +336,8 @@ impl GethDebugTracingOptions {
 /// tracer. For example, the `enableReturnData` option is a noop on regular
 /// `debug_trace{Transaction,Block}` calls.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct GethDefaultTracingOptions {
     /// enable memory capture
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub enable_memory: Option<bool>,
     /// Disable memory capture
     ///
@@ -378,16 +349,12 @@ pub struct GethDefaultTracingOptions {
     /// OR `enableMemory` is present `enableMemory` takes precedence.
     ///
     /// See also <https://github.com/paradigmxyz/reth/issues/3033>
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub disable_memory: Option<bool>,
     /// disable stack capture
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub disable_stack: Option<bool>,
     /// Disable storage capture
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub disable_storage: Option<bool>,
     /// Enable return data capture
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub enable_return_data: Option<bool>,
     /// Disable return data capture
     ///
@@ -395,13 +362,10 @@ pub struct GethDefaultTracingOptions {
     /// See also `disable_memory`.
     ///
     /// If `enable_return_data` is present, `enable_return_data` always takes precedence.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub disable_return_data: Option<bool>,
     /// print output during capture end
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub debug: Option<bool>,
     /// maximum length of output, but zero means unlimited
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub limit: Option<u64>,
 }
 
@@ -515,16 +479,12 @@ impl GethDefaultTracingOptions {
 ///
 /// See <https://geth.ethereum.org/docs/rpc/ns-debug#debug_tracecall>
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct GethDebugTracingCallOptions {
     /// All the options
-    #[serde(flatten)]
     pub tracing_options: GethDebugTracingOptions,
     /// The state overrides to apply
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub state_overrides: Option<StateOverride>,
     /// The block overrides to apply
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub block_overrides: Option<BlockOverrides>,
 }
 

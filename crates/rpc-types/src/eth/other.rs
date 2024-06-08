@@ -11,7 +11,6 @@ use std::{
 ///
 /// This type is supposed to be used with [`#[serde(flatten)`](https://serde.rs/field-attrs.html#flatten)
 #[derive(Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(transparent)]
 pub struct OtherFields {
     /// Contains all unknown fields
     inner: BTreeMap<String, serde_json::Value>,

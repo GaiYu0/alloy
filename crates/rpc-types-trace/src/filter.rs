@@ -6,23 +6,16 @@ use std::collections::HashSet;
 
 /// Trace filter.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-#[serde(rename_all = "camelCase")]
 pub struct TraceFilter {
     /// From block
-    #[serde(with = "u64_opt_via_ruint")]
     pub from_block: Option<u64>,
     /// To block
-    #[serde(with = "u64_opt_via_ruint")]
     pub to_block: Option<u64>,
     /// From address
-    #[serde(default)]
     pub from_address: Vec<Address>,
     /// To address
-    #[serde(default)]
     pub to_address: Vec<Address>,
     /// How to apply `from_address` and `to_address` filters.
-    #[serde(default)]
     pub mode: TraceFilterMode,
     /// Output offset
     pub after: Option<u64>,
@@ -85,7 +78,6 @@ impl TraceFilter {
 
 /// How to apply `from_address` and `to_address` filters.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub enum TraceFilterMode {
     /// Return traces for transactions with matching `from` OR `to` addresses.
     #[default]

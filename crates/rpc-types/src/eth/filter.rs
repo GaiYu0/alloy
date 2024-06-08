@@ -715,7 +715,6 @@ where
         }
 
         #[derive(Deserialize)]
-        #[serde(untagged)]
         enum Variadic<T> {
             Value(T),
             Array(Vec<T>),
@@ -861,10 +860,8 @@ impl FilteredParams {
 
 /// Response of the `eth_getFilterChanges` RPC.
 #[derive(Default, Clone, Debug, PartialEq, Eq, Serialize)]
-#[serde(untagged)]
 pub enum FilterChanges<T = Transaction> {
     /// Empty result.
-    #[serde(with = "empty_array")]
     #[default]
     Empty,
     /// New logs.
@@ -910,7 +907,6 @@ impl<'de> Deserialize<'de> for FilterChanges {
         D: Deserializer<'de>,
     {
         #[derive(Deserialize)]
-        #[serde(untagged)]
         enum Changes<T = Transaction> {
             Hashes(Vec<B256>),
             Logs(Vec<RpcLog>),
@@ -947,8 +943,6 @@ impl<'de> Deserialize<'de> for FilterChanges {
 
 /// Owned equivalent of a `SubscriptionId`
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-#[serde(untagged)]
 pub enum FilterId {
     /// Numeric id
     Num(u64),

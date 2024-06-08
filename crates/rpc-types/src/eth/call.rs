@@ -4,7 +4,6 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// Bundle of transactions
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
 pub struct Bundle {
     /// All transactions to execute
     pub transactions: Vec<TransactionRequest>,
@@ -14,25 +13,19 @@ pub struct Bundle {
 
 /// State context for callMany
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
 pub struct StateContext {
     /// Block Number
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub block_number: Option<BlockId>,
     /// Inclusive number of tx to replay in block. -1 means replay all
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub transaction_index: Option<TransactionIndex>,
 }
 
 /// CallResponse for eth_callMany
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
 pub struct EthCallResponse {
     /// eth_call output (if no error)
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<Bytes>,
     /// eth_call output (if error)
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
 }
 

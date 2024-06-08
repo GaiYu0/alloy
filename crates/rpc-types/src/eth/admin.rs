@@ -24,7 +24,6 @@ pub struct NodeInfo {
     /// The node's listening ports.
     pub ports: Ports,
     /// The node's listening address.
-    #[serde(rename = "listenAddr")]
     pub listen_addr: SocketAddr,
     /// The protocols that the node supports, with protocol metadata.
     pub protocols: ProtocolInfo,
@@ -45,10 +44,8 @@ pub struct Ports {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProtocolInfo {
     /// Details about the node's supported eth protocol. `None` if unsupported
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub eth: Option<EthProtocolInfo>,
     /// Details about the node's supported snap protocol. `None` if unsupported
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub snap: Option<SnapProtocolInfo>,
 }
 
@@ -86,25 +83,20 @@ pub struct SnapProtocolInfo {}
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PeerProtocolInfo {
     /// Details about the peer's supported eth protocol. `None` if unsupported
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub eth: Option<EthPeerInfo>,
     /// Details about the peer's supported snap protocol. `None` if unsupported
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub snap: Option<SnapPeerInfo>,
     /// Placeholder for any other protocols
-    #[serde(flatten, default)]
     pub other: BTreeMap<String, serde_json::Value>,
 }
 
 /// Can contain either eth protocol info or a string "handshake", which geth uses if the peer is
 /// still completing the handshake for the protocol.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum EthPeerInfo {
     /// The `eth` sub-protocol metadata known about the host peer.
     Info(EthInfo),
     /// The string "handshake" if the peer is still completing the handshake for the protocol.
-    #[serde(with = "handshake")]
     Handshake,
 }
 
@@ -114,7 +106,6 @@ pub enum EthPeerInfo {
 /// struct](https://github.com/ethereum/go-ethereum/blob/94579932b18931115f28aa7f87f02450bda084c9/eth/peer.go#L26)
 /// for how these fields are determined.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default)]
 pub struct EthInfo {
     /// The negotiated eth version.
     pub version: u64,
@@ -123,12 +114,10 @@ pub struct EthInfo {
 /// Can contain either snap protocol info or a string "handshake", which geth uses if the peer is
 /// still completing the handshake for the protocol.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum SnapPeerInfo {
     /// The `snap` sub-protocol metadata known about the host peer.
     Info(SnapInfo),
     /// The string "handshake" if the peer is still completing the handshake for the protocol.
-    #[serde(with = "handshake")]
     Handshake,
 }
 
@@ -138,7 +127,6 @@ pub enum SnapPeerInfo {
 /// struct](https://github.com/ethereum/go-ethereum/blob/94579932b18931115f28aa7f87f02450bda084c9/eth/peer.go#L45)
 /// for how these fields are determined.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default)]
 pub struct SnapInfo {
     /// The negotiated snap version.
     pub version: u64,
@@ -150,7 +138,6 @@ pub struct SnapInfo {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PeerInfo {
     /// The peer's ENR.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub enr: Option<String>,
     /// The peer's enode URL.
     pub enode: String,
@@ -169,7 +156,6 @@ pub struct PeerInfo {
 /// Represents networking related information about the peer, including details about whether or
 /// not it is inbound, trusted, or static.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct PeerNetworkInfo {
     /// The local endpoint of the TCP connection.
     pub local_address: SocketAddr,
@@ -180,7 +166,6 @@ pub struct PeerNetworkInfo {
     /// Whether or not the peer is trusted.
     pub trusted: bool,
     /// Whether or not the peer is a static peer.
-    #[serde(rename = "static")]
     pub static_node: bool,
 }
 

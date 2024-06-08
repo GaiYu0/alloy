@@ -9,7 +9,6 @@ use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
 
 /// Subscription result.
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
-#[serde(untagged)]
 pub enum SubscriptionResult {
     /// New block header.
     Header(Box<RichHeader>),
@@ -25,7 +24,6 @@ pub enum SubscriptionResult {
 
 /// Response type for a SyncStatus subscription.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum PubSubSyncStatus {
     /// If not currently syncing, this should always be `false`.
     Simple(bool),
@@ -35,7 +33,6 @@ pub enum PubSubSyncStatus {
 
 /// Sync status metadata.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct SyncStatusMetadata {
     /// Whether the node is currently syncing.
     pub syncing: bool,
@@ -44,7 +41,6 @@ pub struct SyncStatusMetadata {
     /// The current block.
     pub current_block: u64,
     /// The highest block.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub highest_block: Option<u64>,
 }
 
@@ -65,8 +61,6 @@ impl Serialize for SubscriptionResult {
 
 /// Subscription kind.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-#[serde(rename_all = "camelCase")]
 pub enum SubscriptionKind {
     /// New block headers subscription.
     ///

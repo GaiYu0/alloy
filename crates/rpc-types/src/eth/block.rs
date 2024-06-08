@@ -11,29 +11,19 @@ use std::{collections::BTreeMap, ops::Deref};
 
 /// Block representation
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Block<T = Transaction> {
     /// Header of the block.
-    #[serde(flatten)]
     pub header: Header,
     /// Uncles' hashes.
-    #[serde(default)]
     pub uncles: Vec<B256>,
     /// Block Transactions. In the case of an uncle block, this field is not included in RPC
     /// responses, and when deserialized, it will be set to [BlockTransactions::Uncle].
-    #[serde(
-        default = "BlockTransactions::uncle",
-        skip_serializing_if = "BlockTransactions::is_uncle"
-    )]
     pub transactions: BlockTransactions<T>,
     /// Integer the size of this block in bytes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub size: Option<U256>,
     /// Withdrawals in the block.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub withdrawals: Option<Vec<Withdrawal>>,
     /// Support for arbitrary additional fields.
-    #[serde(flatten)]
     pub other: OtherFields,
 }
 
@@ -47,14 +37,12 @@ impl Block {
 /// Block header representation.
 #[cfg_attr(any(test, feature = "arbitrary"), derive(arbitrary::Arbitrary))]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Header {
     /// Hash of the block
     pub hash: Option<B256>,
     /// Hash of the parent
     pub parent_hash: B256,
     /// Hash of the uncles
-    #[serde(rename = "sha3Uncles")]
     pub uncles_hash: B256,
     /// Alias of `author`
     pub miner: Address,
@@ -69,19 +57,14 @@ pub struct Header {
     /// Difficulty
     pub difficulty: U256,
     /// Block number
-    #[serde(default, with = "alloy_serde::num::u64_opt_via_ruint")]
     pub number: Option<u64>,
     /// Gas Limit
-    #[serde(default, with = "alloy_serde::num::u128_via_ruint")]
     pub gas_limit: u128,
     /// Gas Used
-    #[serde(default, with = "alloy_serde::num::u128_via_ruint")]
     pub gas_used: u128,
     /// Timestamp
-    #[serde(default, with = "alloy_serde::num::u64_via_ruint")]
     pub timestamp: u64,
     /// Total difficulty
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub total_difficulty: Option<U256>,
     /// Extra data
     pub extra_data: Bytes,
@@ -96,40 +79,20 @@ pub struct Header {
     ///
     /// See also <https://eips.ethereum.org/EIPS/eip-4399>
     /// And <https://github.com/ethereum/execution-apis/issues/328>
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mix_hash: Option<B256>,
     /// Nonce
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub nonce: Option<B64>,
     /// Base fee per unit of gas (if past London)
-    #[serde(
-        default,
-        skip_serializing_if = "Option::is_none",
-        with = "alloy_serde::num::u128_opt_via_ruint"
-    )]
     pub base_fee_per_gas: Option<u128>,
     /// Withdrawals root hash added by EIP-4895 and is ignored in legacy headers.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub withdrawals_root: Option<B256>,
     /// Blob gas used
-    #[serde(
-        default,
-        skip_serializing_if = "Option::is_none",
-        with = "alloy_serde::num::u128_opt_via_ruint"
-    )]
     pub blob_gas_used: Option<u128>,
     /// Excess blob gas
-    #[serde(
-        default,
-        skip_serializing_if = "Option::is_none",
-        with = "alloy_serde::num::u128_opt_via_ruint"
-    )]
     pub excess_blob_gas: Option<u128>,
     /// EIP-4788 parent beacon block root
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub parent_beacon_block_root: Option<B256>,
     /// EIP-7685 requests root.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub requests_root: Option<B256>,
 }
 
@@ -162,7 +125,6 @@ impl Header {
 /// Block Transactions depending on the boolean attribute of `eth_getBlockBy*`,
 /// or if used by `eth_getUncle*`
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum BlockTransactions<T = Transaction> {
     /// Only hashes
     Hashes(Vec<B256>),
@@ -489,10 +451,8 @@ impl From<Header> for RichHeader {
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
 pub struct Rich<T> {
     /// Standard value.
-    #[serde(flatten)]
     pub inner: T,
     /// Additional fields that should be serialized into the `Block` object
-    #[serde(flatten)]
     pub extra_info: BTreeMap<String, serde_json::Value>,
 }
 
@@ -528,37 +488,28 @@ impl<T: Serialize> Serialize for Rich<T> {
 
 /// BlockOverrides is a set of header fields to override.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase", deny_unknown_fields)]
 pub struct BlockOverrides {
     /// Overrides the block number.
     ///
     /// For `eth_callMany` this will be the block number of the first simulated block. Each
     /// following block increments its block number by 1
     // Note: geth uses `number`, erigon uses `blockNumber`
-    #[serde(default, skip_serializing_if = "Option::is_none", alias = "blockNumber")]
     pub number: Option<U256>,
     /// Overrides the difficulty of the block.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub difficulty: Option<U256>,
     /// Overrides the timestamp of the block.
     // Note: geth uses `time`, erigon uses `timestamp`
-    #[serde(default, skip_serializing_if = "Option::is_none", alias = "timestamp")]
     pub time: Option<U64>,
     /// Overrides the gas limit of the block.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gas_limit: Option<U64>,
     /// Overrides the coinbase address of the block.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub coinbase: Option<Address>,
     /// Overrides the prevrandao of the block.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub random: Option<B256>,
     /// Overrides the basefee of the block.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub base_fee: Option<U256>,
     /// A dictionary that maps blockNumber to a user-defined hash. It could be queried from the
     /// solidity opcode BLOCKHASH.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub block_hash: Option<BTreeMap<u64, B256>>,
 }
 

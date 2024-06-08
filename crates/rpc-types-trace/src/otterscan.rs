@@ -53,7 +53,6 @@ pub struct TraceEntry {
 /// Internal issuance struct for `BlockDetails` struct
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[allow(missing_copy_implementations)]
-#[serde(rename_all = "camelCase")]
 pub struct InternalIssuance {
     /// The block reward issued.
     pub block_reward: U256,
@@ -65,10 +64,8 @@ pub struct InternalIssuance {
 
 /// Custom `Block` struct that includes transaction count for Otterscan responses
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct OtsBlock {
     /// The block information.
-    #[serde(flatten)]
     pub block: Block,
     /// The number of transactions in the block.
     pub transaction_count: usize,
@@ -82,7 +79,6 @@ impl From<Block> for OtsBlock {
 
 /// Custom struct for otterscan `getBlockDetails` RPC response
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct BlockDetails {
     /// The block information with transaction count.
     pub block: OtsBlock,
@@ -104,29 +100,23 @@ impl From<Rich<Block>> for BlockDetails {
 
 /// Custom transaction receipt struct for otterscan `OtsBlockTransactions` struct
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct OtsTransactionReceipt {
     /// The transaction receipt.
     ///
     /// Note: the otterscan API sets all log fields to null.
-    #[serde(flatten)]
     pub receipt: TransactionReceipt<OtsReceipt>,
     /// The timestamp of the transaction.
-    #[serde(default, with = "alloy_serde::u64_opt_via_ruint")]
     pub timestamp: Option<u64>,
 }
 
 /// The receipt of a transaction.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct OtsReceipt {
     /// If the transaction is executed successfully.
     ///
     /// This is the `statusCode`
-    #[serde(with = "alloy_serde::quantity_bool")]
     pub status: bool,
     /// The cumulative gas used.
-    #[serde(with = "alloy_serde::u64_via_ruint")]
     pub cumulative_gas_used: u64,
     /// The logs sent from contracts.
     ///
@@ -137,7 +127,6 @@ pub struct OtsReceipt {
     /// Note: this is set to null.
     pub logs_bloom: Option<Bloom>,
     /// The transaction type.
-    #[serde(with = "alloy_serde::num::u8_via_ruint")]
     pub r#type: u8,
 }
 
@@ -153,7 +142,6 @@ pub struct OtsBlockTransactions {
 /// Custom struct for otterscan `searchTransactionsAfter` and `searchTransactionsBefore` RPC
 /// responses
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct TransactionsWithReceipts {
     /// The list of transactions.
     pub txs: Vec<Transaction>,

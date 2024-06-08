@@ -4,7 +4,6 @@ use std::collections::BTreeMap;
 
 /// Syncing info
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct SyncInfo {
     /// Starting block
     pub starting_block: U256,
@@ -33,7 +32,6 @@ pub struct Peers {
 
 /// Number of peers connected to.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum PeerCount {
     /// Peer count as integer
     Number(u32),
@@ -58,7 +56,6 @@ pub struct PeerInfo {
 
 /// Peer network information
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct PeerNetworkInfo {
     /// Remote endpoint address
     pub remote_address: String,
@@ -72,7 +69,6 @@ pub struct PeerProtocolsInfo {
     /// Ethereum protocol information
     pub eth: Option<PeerEthProtocolInfo>,
     /// PIP protocol information.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub pip: Option<PipProtocolInfo>,
 }
 
@@ -113,7 +109,6 @@ impl<'de> Deserialize<'de> for SyncStatus {
         D: Deserializer<'de>,
     {
         #[derive(Deserialize)]
-        #[serde(untagged)]
         enum Syncing {
             /// When client is synced to the highest block, eth_syncing with return "false"
             None(bool),
@@ -144,7 +139,6 @@ impl Serialize for SyncStatus {
 
 /// Propagation statistics for pending transaction.
 #[derive(Clone, Debug, Default, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct TransactionStats {
     /// Block no this transaction was first seen.
     pub first_seen: u64,
@@ -154,7 +148,6 @@ pub struct TransactionStats {
 
 /// Chain status.
 #[derive(Clone, Copy, Debug, Default, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct ChainStatus {
     /// Describes the gap in the blockchain, if there is one: (first, last)
     pub block_gap: Option<(U256, U256)>,

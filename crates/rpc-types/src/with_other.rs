@@ -9,10 +9,8 @@ use std::ops::{Deref, DerefMut};
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct WithOtherFields<T> {
     /// The inner struct.
-    #[serde(flatten)]
     pub inner: T,
     /// All fields not present in the inner struct.
-    #[serde(flatten)]
     pub other: OtherFields,
 }
 
@@ -67,9 +65,7 @@ where
 
         #[derive(Deserialize)]
         struct WithOtherFieldsHelper<T> {
-            #[serde(flatten)]
             inner: T,
-            #[serde(flatten)]
             other: OtherFields,
         }
 
@@ -101,7 +97,6 @@ mod tests {
 
     #[derive(Serialize, Deserialize)]
     struct InnerWrapper {
-        #[serde(flatten)]
         inner: Inner,
     }
 

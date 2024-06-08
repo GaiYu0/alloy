@@ -11,7 +11,6 @@ pub struct AccountInfo {
 
 /// Data structure with proof for one single storage-entry
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct EIP1186StorageProof {
     /// Storage key.
     pub key: JsonStorageKey,
@@ -23,7 +22,6 @@ pub struct EIP1186StorageProof {
 
 /// Response for EIP-1186 account proof `eth_getProof`
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct EIP1186AccountProofResponse {
     /// The account address.
     pub address: Address,
@@ -49,7 +47,6 @@ pub struct ExtAccountInfo {
     /// Account meta JSON
     pub meta: String,
     /// Account UUID (`None` for address book entries)
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub uuid: Option<String>,
 }
 
@@ -57,7 +54,6 @@ pub struct ExtAccountInfo {
 /// as well as information that tells if it is valid for
 /// the current chain
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct RecoveredAccount {
     /// address of the recovered account
     pub address: Address,

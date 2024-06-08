@@ -20,7 +20,6 @@ pub struct Signature {
     /// See also <https://ethereum.github.io/execution-apis/api-documentation/> and <https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionbyhash>
     pub v: U256,
     /// The y parity of the signature. This is only used for typed (non-legacy) transactions.
-    #[serde(default, rename = "yParity", skip_serializing_if = "Option::is_none")]
     pub y_parity: Option<Parity>,
 }
 
@@ -30,7 +29,7 @@ pub struct Signature {
 #[cfg_attr(any(test, feature = "arbitrary"), derive(arbitrary::Arbitrary))]
 #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Parity(
-    #[serde(serialize_with = "serialize_parity", deserialize_with = "deserialize_parity")] pub bool,
+    pub bool,
 );
 
 impl From<bool> for Parity {

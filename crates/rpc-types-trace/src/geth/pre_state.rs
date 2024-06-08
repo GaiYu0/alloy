@@ -9,7 +9,6 @@ use std::collections::{btree_map, BTreeMap};
 ///
 /// <https://github.com/ethereum/go-ethereum/blob/91cb6f863a965481e51d5d9c0e5ccd54796fd967/eth/tracers/native/prestate.go#L38>
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum PreStateFrame {
     /// The default mode returns the accounts necessary to execute a given transaction.
     ///
@@ -65,7 +64,6 @@ pub struct PreStateMode(pub BTreeMap<Address, AccountState>);
 /// This will only contain changed [AccountState]s, created accounts will not be included in the pre
 /// state and selfdestructed accounts will not be included in the post state.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 pub struct DiffMode {
     /// The account states after the transaction is executed.
     pub post: BTreeMap<Address, AccountState>,
@@ -129,16 +127,12 @@ impl DiffStateKind {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct AccountState {
     /// The optional balance of the account.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub balance: Option<U256>,
     /// The optional code of the account.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub code: Option<Bytes>,
     /// The optional nonce of the account.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub nonce: Option<u64>,
     /// The storage of the account.
-    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub storage: BTreeMap<B256, B256>,
 }
 
@@ -204,12 +198,10 @@ impl AccountChangeKind {
 
 /// The config for the prestate tracer.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct PreStateConfig {
     /// If `diffMode` is set to true, the response frame includes all the account and storage diffs
     /// for the transaction. If it's missing or set to false it only returns the accounts and
     /// storage necessary to execute the transaction.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub diff_mode: Option<bool>,
 }
 
