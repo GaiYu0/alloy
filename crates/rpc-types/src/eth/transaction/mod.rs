@@ -34,21 +34,16 @@ pub use alloy_consensus::{AnyReceiptEnvelope, Receipt, ReceiptEnvelope, ReceiptW
 /// Transaction object used in RPC
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(any(test, feature = "arbitrary"), derive(arbitrary::Arbitrary))]
-#[serde(rename_all = "camelCase")]
 pub struct Transaction {
     /// Hash
     pub hash: B256,
     /// Nonce
-    #[serde(with = "alloy_serde::num::u64_via_ruint")]
     pub nonce: u64,
     /// Block hash
-    #[serde(default)]
     pub block_hash: Option<B256>,
     /// Block number
-    #[serde(default, with = "alloy_serde::num::u64_opt_via_ruint")]
     pub block_number: Option<u64>,
     /// Transaction Index
-    #[serde(default, with = "alloy_serde::num::u64_opt_via_ruint")]
     pub transaction_index: Option<u64>,
     /// Sender
     pub from: Address,
@@ -57,75 +52,39 @@ pub struct Transaction {
     /// Transferred value
     pub value: U256,
     /// Gas Price
-    #[serde(
-        default,
-        skip_serializing_if = "Option::is_none",
-        with = "alloy_serde::num::u128_opt_via_ruint"
-    )]
     pub gas_price: Option<u128>,
     /// Gas amount
-    #[serde(with = "alloy_serde::num::u128_via_ruint")]
     pub gas: u128,
     /// Max BaseFeePerGas the user is willing to pay.
-    #[serde(
-        default,
-        skip_serializing_if = "Option::is_none",
-        with = "alloy_serde::num::u128_opt_via_ruint"
-    )]
     pub max_fee_per_gas: Option<u128>,
     /// The miner's tip.
-    #[serde(
-        default,
-        skip_serializing_if = "Option::is_none",
-        with = "alloy_serde::num::u128_opt_via_ruint"
-    )]
     pub max_priority_fee_per_gas: Option<u128>,
     /// Configured max fee per blob gas for eip-4844 transactions
-    #[serde(
-        default,
-        skip_serializing_if = "Option::is_none",
-        with = "alloy_serde::num::u128_opt_via_ruint"
-    )]
     pub max_fee_per_blob_gas: Option<u128>,
     /// Data
     pub input: Bytes,
     /// All _flattened_ fields of the transaction signature.
     ///
     /// Note: this is an option so special transaction types without a signature (e.g. <https://github.com/ethereum-optimism/optimism/blob/0bf643c4147b43cd6f25a759d331ef3a2a61a2a3/specs/deposits.md#the-deposited-transaction-type>) can be supported.
-    #[serde(flatten, skip_serializing_if = "Option::is_none")]
     pub signature: Option<Signature>,
     /// The chain id of the transaction, if any.
-    #[serde(
-        default,
-        skip_serializing_if = "Option::is_none",
-        with = "alloy_serde::u64_opt_via_ruint"
-    )]
     pub chain_id: Option<u64>,
     /// Contains the blob hashes for eip-4844 transactions.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub blob_versioned_hashes: Option<Vec<B256>>,
     /// EIP2930
     ///
     /// Pre-pay to warm storage access.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub access_list: Option<AccessList>,
     /// EIP2718
     ///
     /// Transaction type,
     /// Some(3) for EIP-4844 transaction, Some(2) for EIP-1559 transaction,
     /// Some(1) for AccessList transaction, None or Some(0) for Legacy
-    #[serde(
-        default,
-        rename = "type",
-        skip_serializing_if = "Option::is_none",
-        with = "alloy_serde::num::u8_opt_via_ruint"
-    )]
     pub transaction_type: Option<u8>,
 
     /// Arbitrary extra fields.
     ///
     /// This captures fields that are not native to ethereum but included in ethereum adjacent networks, for example fields the [optimism `eth_getTransactionByHash` request](https://docs.alchemy.com/alchemy/apis/optimism/eth-gettransactionbyhash) returns additional fields that this type will capture
-    #[serde(flatten)]
     pub other: OtherFields,
 }
 

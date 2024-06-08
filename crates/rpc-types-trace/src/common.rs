@@ -5,14 +5,12 @@ use serde::{Deserialize, Serialize};
 
 /// The result of a single transaction trace.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum TraceResult<Ok, Err> {
     /// Untagged success variant
     Success {
         /// Trace results produced by the tracer
         result: Ok,
         /// transaction hash
-        #[serde(skip_serializing_if = "Option::is_none", rename = "txHash")]
         tx_hash: Option<TxHash>,
     },
     /// Untagged error variant
@@ -20,7 +18,6 @@ pub enum TraceResult<Ok, Err> {
         /// Trace failure produced by the tracer
         error: Err,
         /// transaction hash
-        #[serde(skip_serializing_if = "Option::is_none", rename = "txHash")]
         tx_hash: Option<TxHash>,
     },
 }
